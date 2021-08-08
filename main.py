@@ -19,6 +19,7 @@ class Main:
         self.last_right_score = 0
         self.screenshot = None
         self.border_size = 10
+        self.balls = 0
         
         self.DEBUG = True
         self.disable_double_check = False # Set to on for slower computers (One iteration > 0.5 seconds), less accurate.
@@ -28,6 +29,7 @@ class Main:
             self.is_dead = False
         else:
             self.is_dead = True
+            self.balls = 0
         
     def check_contours(self, frame):
         orig_cnts = cv2.findContours(frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
@@ -83,8 +85,10 @@ class Main:
         return frame
     
     def prepare_frame_for_text(self, frame, y1, y2, x1, x2, window_name):
-        frame_small = frame[y1-self.border_size:y2+self.border_size, x1-self.border_size:x2+self.border_size]
+        frame_small = frame[(y1-self.border_size):(y2+self.border_size), (x1-self.border_size):(x2+self.border_size)]
         frame_small = cv2.copyMakeBorder(frame_small, self.border_size, self.border_size, self.border_size, self.border_size, cv2.BORDER_CONSTANT)
+        if window_name == "Balls":
+            frame_small = cv2.resize(frame_small, (0, 0), fx=1.5, fy=1.5, interpolation=cv2.INTER_AREA)
         frame_hsv = cv2.cvtColor(frame_small, cv2.COLOR_RGB2HSV) # Screenshot is RGB
         if self.is_dead:
             frame_cleaned = cv2.inRange(frame_hsv, (15,55,120), (40,205,150))
@@ -97,6 +101,15 @@ class Main:
             return None
         frame_final = cv2.bitwise_not(frame_cleaned) # Swap Black/White
         frame_final = cv2.resize(frame_final, (0, 0), fx=1.5, fy=1.5, interpolation=cv2.INTER_AREA) # Maybe bad?
+        
+        shear_value = 0.18
+        M = np.float32([[1, shear_value, 0],
+             	[0, 1  , 0],
+            	[0, 0  , 1]])  
+        y, x = frame_final.shape
+        frame_final = cv2.warpPerspective(frame_final,M,(x,y)) # Shear
+        frame_final = frame_final[0:y, int(y*shear_value):x]
+        
         if self.DEBUG:
             t = time.time()
             cv2.imwrite("DEBUG/" + window_name + str(t) + ".png", frame_final)
@@ -107,7 +120,8 @@ class Main:
         tess_config = r'--oem 3 --psm 7 outputbase digits -c tessedit_char_whitelist=0123456789' # psm 7: Treat image as single line
         try:
             number = int(pytesseract.image_to_string(frame, config=tess_config))
-            print(side + " " + str(number))
+            if self.DEBUG:
+                print(side + " " + str(number))
             if number > 0 and number < 51 or (number > 50 and number < 101 and number % 2 == 0):
                 return number
             return None
@@ -115,10 +129,11 @@ class Main:
             return None
             
     def get_own_balls(self, frame):
-        tess_config = r'--oem 3 --psm 7 outputbase digits -c tessedit_char_whitelist=0123456789'
+        tess_config = r'--oem 3 --psm 6 outputbase digits -c tessedit_char_whitelist=0123456789' # psm 6 (Uniform block of text) works better here
         try:
             number = int(pytesseract.image_to_string(frame, config=tess_config))
-            print("Balls: " + str(number))
+            if self.DEBUG:
+                print("Balls: " + str(number))
             if number >= 0 and number < 51:
                 return number
             return None
@@ -160,6 +175,18 @@ class Main:
             self.last_right_score = self.check_scored(110, 160, 1065, 1210, "Right", self.last_right_score)
         if self.last_right_score == -1:
             self.first_goal = True
+            
+    def own_balls_thread(self):
+        ball_frame = self.prepare_frame_for_text(self.screenshot, 775, 825, 933, 987, "Balls")
+        current_balls = self.get_own_balls(ball_frame)
+        if current_balls is None:
+            return
+        if self.balls > 0 and current_balls == 0:
+            self.left_team_score += self.balls
+            self.first_goal = True
+            print ("You scored " + str(self.balls) + " points!")
+            print ("Left " + str(self.left_team_score) + " - " + str(self.right_team_score) + " Right")
+        self.balls = current_balls
 
     def main(self):
         while True:
@@ -170,17 +197,18 @@ class Main:
                 self.set_is_dead(self.screenshot)
                 t1 = threading.Thread(target=self.left_thread)
                 t2 = threading.Thread(target=self.right_thread)
+                t3 = threading.Thread(target=self.own_balls_thread)
                 t1.start()
                 t2.start()
+                if not self.is_dead:
+                    t3.start()
                 t1.join()
                 t2.join()
+                if not self.is_dead:
+                    t3.join()
                 sleeptime = start - time.time() + 0.3
                 if sleeptime > 0:
                     time.sleep(sleeptime) # Run every 0.3 seconds
-                # self.left_thread()
-                # self.right_thread()
-                # ball_frame = self.prepare_frame_for_text(frame, 780, 822, 930, 990, "Balls")
-                # own_balls = self.get_own_balls(ball_frame) # TODO: Was mit machen
             except KeyboardInterrupt:
                 print("Done")
                 break
