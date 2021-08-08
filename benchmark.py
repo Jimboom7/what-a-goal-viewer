@@ -18,8 +18,8 @@ for i in range(1,9):
     else:
         small_left_frame = main.prepare_frame_for_text(frame, 110, 160, 870, 970, "Left")
         small_right_frame = main.prepare_frame_for_text(frame, 110, 160, 1325, 1425, "Right")
-    left_score = main.get_score(small_left_frame)
-    right_score = main.get_score(small_right_frame)
+    left_score = main.get_score(small_left_frame, "Left")
+    right_score = main.get_score(small_right_frame, "Right")
     if left_score == expected_left_score_list[i] and right_score == expected_right_score_list[i]:
         print("#" + str(i) + " correct")
     else:
