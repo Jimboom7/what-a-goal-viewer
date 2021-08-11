@@ -456,7 +456,7 @@ class Main:
     def main(self):
         if not os.path.isfile(pytesseract.pytesseract.tesseract_cmd):
             print("ERROR: Tesseract is missing: " + str(pytesseract.pytesseract.tesseract_cmd))
-            exit()
+            sys.exit()
         self.gui = Gui(self)
         self.gui.show()
 
