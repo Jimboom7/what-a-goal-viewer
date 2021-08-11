@@ -188,7 +188,7 @@ class Main:
         self.screenshot = None
         
     def update_screensize(self, screensize):
-        self.screen_size = 1920
+        self.screen_size = screensize
         self.screen = ScreenConverter()
         self.screen.convert(self.screen_size)
         
