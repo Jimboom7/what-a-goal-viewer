@@ -7,7 +7,7 @@ The WAG-Viewer is a simple python script that displays the current score for a P
 
 ## How to use
 
-* Download the latest version from the [release page](https://github.com/Jimboom7/pu-goal-viewer/releases) and unzip it.
+* Download the latest version from the [release page](https://github.com/Jimboom7/what-a-goal-viewer/releases) and unzip it (Windows only).
 * Start the wag-viewer.exe.
 * Select your source:
 	* Monitor: Your primary monitor. Must be 16:9 format and displaying the game in fullscreen (Twitch or Youtube work too).
@@ -25,7 +25,7 @@ If you want to get the source running follow these steps:
 
 The program checks the screen multiple times per second. Let's take this screenshot for example:  
 ![Original](https://i.imgur.com/1tLopkf.png)  
-The marked areas are preprocessed:  
+The marked areas are preprocessed in the following way:  
 - Cut out the area
 - Add a border (Tesseract doesn't like text at the edges of the image)
 - Convert to HSV color space
@@ -36,7 +36,7 @@ The marked areas are preprocessed:
 The final result for the left scoring area looks like this:  
 ![After Preprocessing](https://i.imgur.com/Mx3XfBx.png)  
 This image is then given to tesseract for analysis and a result with a strong confidence is accepted.  
-The same applies to the right scoring area. For the score of the actual player the balls at the bottom of the screen are checked, because the score-message is in the center of the screen and often hidden. When the balls suddenly drop to zero and the player is not dead (greyscreen) the score is accepted.
+The same applies to the right scoring area. For the score of the actual player the balls at the bottom of the screen are checked, because the score notification is in the center of the screen and often hidden. When the balls suddenly drop to zero and the player is not dead (greyscreen) the score is accepted.
 
 ## Tests
 
