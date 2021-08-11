@@ -128,3 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 DEBUG/
+Tesseract-OCR/
+notes/
+sonar-project.properties
+sonar_scanner.bat

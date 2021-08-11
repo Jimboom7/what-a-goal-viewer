@@ -1,13 +1,22 @@
+'''
+Can be used to evaluate the preprocessing of frames in the main class.
+
+Very low code quality in this file.
+'''
 from main import Main
 import numpy as np
 import cv2
 import pytesseract
 
+pytesseract.pytesseract.tesseract_cmd = r'Tesseract-OCR\tesseract.exe'
+
 main = Main()
+main.DEBUG = True
 
 overall_conf = 0
 num_of_numbers = 0
 min_conf = 100
+
 def get_number_with_confidence(tess_dict, conf):
     number = ''
     global overall_conf
@@ -67,7 +76,7 @@ for i in range(1,36):
 expected_left_score_list = [None, None, 19, 30, 30, None, 18]
 expected_right_score_list = [None, 10, None, None, None, 11, None]
         
-for i in range(1,7):
+for i in range(1,7): # First Goals
     frame = get_frame('f')
     main.set_is_dead(frame)
     small_left_frame = main.prepare_frame_for_text(frame, 110, 190, 870, 970, "Left")
