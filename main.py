@@ -76,9 +76,9 @@ class Gui:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def show(self):
-        self.left_score_label = tk.Label(self.root, text = "0", font=("calibre", 50, "bold"))
+        self.left_score_label = tk.Label(self.root, text = "0", font=("calibre", 50, "bold"), width=4)
         self.left_score_label.grid(row=0)
-        self.right_score_label = tk.Label(self.root, text = "0", font=("calibre", 50, "bold"))
+        self.right_score_label = tk.Label(self.root, text = "0", font=("calibre", 50, "bold"), width=4)
         self.right_score_label.grid(row=0, column=2)
         
         source_label = tk.Label(self.root, text="Source")
@@ -157,6 +157,7 @@ class Gui:
     def on_closing(self):
         self.reset()
         self.root.destroy()
+        sys.exit()
         
         
 '''
