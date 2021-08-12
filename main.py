@@ -421,7 +421,12 @@ class Main:
         
     def main_thread(self):
         if self.use_capture_card:
-            cap = cv2.VideoCapture(self.device_number)
+            num = 0
+            try:
+                num = int(self.device_number)
+            except:
+                pass
+            cap = cv2.VideoCapture(num)
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
             if not cap.isOpened():
